@@ -9,8 +9,6 @@ public:
     Device(const std::string &name, const double latitude, const double longitude, const double heightAboveSeaLevel = 0.0);
     ~Device();
 
-    const std::string m_name;
-
     std::string getType() const;
 
     double getLatitude() const;
@@ -34,6 +32,7 @@ public:
 
 private:
     std::string type;
+    const std::string m_name;
 
     double m_latitude;
     double m_longitude;

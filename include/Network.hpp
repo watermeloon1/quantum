@@ -14,10 +14,10 @@ public:
     virtual ~Network();
 
     double getOpticalDistance() const;
-    double getRandom(const double from, const double to) const;
+    double getRandom(const double deviation) const;
 
-    bool addChannel(Channel *channel);
-    bool deleteChannel(Channel *channel);
+    void addChannel(Channel &channel);
+    void deleteChannel(Channel &channel);
 
 protected:
     static std::string type;
@@ -27,7 +27,7 @@ protected:
     virtual void simulateTripleSatelliteDefault(double precision) = 0;
     virtual double getQBER() = 0;
 
-    void dataLogger(const char *filename, const std::string &directory, const std::vector<double> &data);
+    bool dataLogger(const std::string &filename, const std::string &directory, const std::vector<double> &data);
     std::string makeFolder(const char *prefix, const double heightAboveSeaLevel, const std::string &technology);
 
     Device &m_alice;
@@ -37,7 +37,7 @@ protected:
     double m_deviationRangeHeight;
     double m_deviationRangeLateral;
 
-    std::vector<Channel *> channels;
+    std::vector<Channel *> m_channels;
 };
 
 #endif
