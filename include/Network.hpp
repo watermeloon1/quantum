@@ -1,6 +1,8 @@
 #ifndef NETWORK_HPP
 #define NETWORK_HPP
 
+#define MAX_LONGITUDE 180.0
+
 #include <vector>
 #include <string>
 
@@ -16,8 +18,8 @@ public:
     double getOpticalDistance() const;
     double getRandom(const double deviation) const;
 
-    void addChannel(Channel &channel);
-    void deleteChannel(Channel &channel);
+    void addChannel(Channel *channel);
+    void deleteChannel(Channel *channel);
 
 protected:
     static std::string type;

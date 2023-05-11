@@ -27,17 +27,17 @@ double Network::getRandom(const double deviation) const {
     return dist(gen);
 }
 
-void Network::addChannel(Channel& channel) {
-    m_channels.push_back(&channel);
+void Network::addChannel(Channel *channel) {
+    m_channels.push_back(channel);
 }
 
-void Network::deleteChannel(Channel& channel) {
-    std::vector<Channel*>::iterator it;
-    for (it = m_channels.begin(); it != m_channels.end(); ++it) {
-        if (*it == &channel) {
-            m_channels.erase(it);
-            break;
-        }
+void Network::deleteChannel(Channel *channel) {
+    std::vector<Channel*>::iterator iter = std::find(m_channels.begin(), m_channels.end(), channel);
+    if (iter != m_channels.end()) {
+        m_channels.erase(iter);
+        delete channel;
+    } else {
+        std::cout << "Channel pointer not found in vector" << std::endl;
     }
 }
 
@@ -71,7 +71,7 @@ std::string Network::makeFolder(const char *prefix, const double heightAboveSeaL
     int status = mkdir(directory.c_str(), 0777);
     if (status == -1) {
         std::cerr << "ERROR: could not create directory \" " << directory << " \"" << std::endl;
-        exit(1);
+        return "ERROR";
     }
     return dirName;
 }

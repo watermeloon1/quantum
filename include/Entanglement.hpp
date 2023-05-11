@@ -20,7 +20,7 @@ public:
 
 private:
     double getQBER() override;
-    static std::string type;
+    static std::string m_type;
 };
 
 #endif
