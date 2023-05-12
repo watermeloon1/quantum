@@ -204,38 +204,5 @@ namespace tools
    	return pow(1.46 * pow(waveNumber, 2) * sum, -(0.6));
    }
 }
-/*
-class Tools
-{
-public:
-    static double zenith(const double heightAboveSeaLevel, const double distance);
-
-    static double beamWideningVacuum(const double distance, const double apertureDiameter,
-                                     const double waveLenght, const global::Focus &focus);
-
-    static double beamWideningAtmosphere(const double distance, const double apertureDiameter,
-                                         const double waveLenght, const double coherenceLength,
-                                         const global::Focus &focus);
-
-    static double turbulenceStrength(const double heightAboveSeaLevel, const double windSpeed);
-
-    static double targetingError(const double distance, const double targetingAngularError);
-
-    static double totalScattering(const double beamRadius, const double targetingError);
-
-    static double dynamicTransmittance(const double totalScattering, const double mirrorRadius);
-
-    static double staticTransmittance(const std::vector<double> &molecularScattering,
-                                      const std::vector<double> &molecularAbsorption,
-                                      const std::vector<double> &aerosolScattering,
-                                      const std::vector<double> &aerosolAbsorption,
-                                      const std::vector<double> &layers, const double zenith);
-
-    static double beamWideningEarthSpace(const double waveLenght, const std::vector<double> &sectors,
-                                         const double distance, const double windSpeed, const double zenith);
-
-    static double beamWideningSpaceEarth(const double waveLenght, const std::vector<double> &sectors,
-                                         const double distance, const double windSpeed, const double zenith);
-};*/
 
 #endif

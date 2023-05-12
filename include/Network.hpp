@@ -28,7 +28,7 @@ protected:
     virtual void simulateSingleSatelliteDefault(double precision) = 0;
     virtual void simulateDoubleSatelliteDefault(double precision) = 0;
     virtual void simulateTripleSatelliteDefault(double precision) = 0;
-    virtual double getQBER() = 0;
+    virtual double getQBER() const = 0;
 
     bool dataLogger(const std::string &filename, const std::string &directory, const std::vector<double> &data);
     std::string makeFolder(const char *prefix, const double heightAboveSeaLevel, const std::string &technology);
@@ -47,5 +47,3 @@ protected:
 };
 
 #endif
-
-// TODO: mitigate deviation to a more logical place

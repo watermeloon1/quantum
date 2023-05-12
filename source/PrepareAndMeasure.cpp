@@ -1,27 +1,32 @@
-#include "../include/Entanglement.hpp"
+#include "../include/PrepareAndMeasure.hpp"
 #include "../include/Device.hpp"
 #include "../include/Atmosphere.hpp"
 #include "../include/Channel.hpp"
 
-std::string Entanglement::m_type = "entanglement-based";
+std::string PrepareAndMeasure::m_type = "prepare-and-measure";
 
-Entanglement::Entanglement(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
+PrepareAndMeasure::PrepareAndMeasure(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
     Network(alice, alice_atmosphere, bob, bob_atmosphere, heightAboveSeaLevel, deviationRangeHeight, deviationRangeLateral){
 
 }
 
-Entanglement::~Entanglement(){
+PrepareAndMeasure::~PrepareAndMeasure(){
 }
 
-double Entanglement::getQBER() const {
-    double quantumBitSuccessRate = 1.0;
-    for(std::vector<Channel*>::const_iterator it = m_channels.begin(); it != m_channels.end(); ++it){
-        quantumBitSuccessRate *= 1.0 - (*it) -> getQuantumBitErrorRate();
+double PrepareAndMeasure::getQBER() const {
+    double totalTransmittance = 1.0;
+    for (std::vector<Channel*>::const_iterator it = m_channels.begin(); it != m_channels.end(); ++it){
+        totalTransmittance *= (*it) -> getTransmittance();
     }
-    return 1.0 - quantumBitSuccessRate;
+
+    const double numerator = m_bob.getNoise() * m_bob.getDetectorCount();
+    const double denumerator = totalTransmittance * m_alice.getMeanPhotonNumberOfSignal() * m_bob.getQuantumEfficiencyOfDetector() * 2.0;
+	const double quantumBitErrorRate = m_bob.getProbabilityOfPolarizationMeasurementError() + (numerator / denumerator);
+
+    return quantumBitErrorRate;
 }
 
-void Entanglement::simulateSingleSatelliteDefault(double precision){
+void PrepareAndMeasure::simulateSingleSatelliteDefault(double precision){
     Device satellite = Device("satellite", 0.0, 0.0, m_heightAboveSeaLevel);
 
     std::vector<double> v_qber;
@@ -33,9 +38,9 @@ void Entanglement::simulateSingleSatelliteDefault(double precision){
         satellite.setLongitude(longitude);
         satellite.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
 
-        Channel *satellite_alice;
+        Channel *alice_satellite;
         try {
-            satellite_alice = new Channel(satellite, m_alice, m_alice_atmosphere);
+            alice_satellite = new Channel(m_alice, satellite, m_alice_atmosphere);
         } catch (const std::runtime_error &e){
             continue;
         }
@@ -44,19 +49,18 @@ void Entanglement::simulateSingleSatelliteDefault(double precision){
         try {
             satellite_bob = new Channel(satellite, m_bob, m_bob_atmosphere);
         } catch (const std::runtime_error &e){
-            delete satellite_alice;
+            delete alice_satellite;
             continue;
         }
 
-        addChannel(satellite_alice);
+        addChannel(alice_satellite);
         addChannel(satellite_bob);
 
         v_qber.push_back(getQBER());
         v_optical.push_back(getOpticalDistance());
         v_longitude.push_back(longitude);
 
-        // calls delete too
-        deleteChannel(satellite_alice);
+        deleteChannel(alice_satellite);
         deleteChannel(satellite_bob);
     }
 
@@ -72,9 +76,10 @@ void Entanglement::simulateSingleSatelliteDefault(double precision){
         std::cerr << "WARNING: the network is unable to establish communication between " << m_alice.getName() <<
             " and " << m_bob.getName() << std::endl;
     }
+
 }
 
-void Entanglement::simulateDoubleSatelliteDefault(double precision){
+void PrepareAndMeasure::simulateDoubleSatelliteDefault(double precision){
     Device satellite1 = Device("satellite_one", 0.0, 0.0, m_heightAboveSeaLevel);
     Device satellite2 = Device("satellite_two", 0.0, 0.0, m_heightAboveSeaLevel);
 
@@ -82,9 +87,6 @@ void Entanglement::simulateDoubleSatelliteDefault(double precision){
     std::vector<double> v_optical;
     std::vector<double> v_longitude1;
     std::vector<double> v_longitude2;
-
-    std::vector<double> temp;
-    double count = 0;
 
     for (double longitude1 = -(MAX_LONGITUDE); longitude1 < MAX_LONGITUDE; longitude1 += precision){
         satellite1.setLatitude(getRandom(m_deviationRangeLateral));
@@ -96,9 +98,6 @@ void Entanglement::simulateDoubleSatelliteDefault(double precision){
             satellite2.setLongitude(longitude2);
             satellite2.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
 
-            temp.push_back(count);
-            count += 1.0;
-
             Channel *alice_satellite1;
             try {
                 alice_satellite1 = new Channel(m_alice, satellite1, m_alice_atmosphere);
@@ -106,9 +105,9 @@ void Entanglement::simulateDoubleSatelliteDefault(double precision){
                 continue;
             }
 
-            Channel *satellite2_satellite1;
+            Channel *satellite1_satellite2;
             try {
-                satellite2_satellite1 = new Channel(satellite2, satellite1);
+                satellite1_satellite2 = new Channel(satellite1, satellite2);
             } catch (const std::runtime_error &e){
                 delete alice_satellite1;
                 continue;
@@ -119,14 +118,12 @@ void Entanglement::simulateDoubleSatelliteDefault(double precision){
                 satellite2_bob = new Channel(satellite2, m_bob, m_bob_atmosphere);
             } catch (const std::runtime_error &e){
                 delete alice_satellite1;
-                delete satellite2_satellite1;
+                delete satellite1_satellite2;
                 continue;
             }
 
-            temp.pop_back();
-
             addChannel(alice_satellite1);
-            addChannel(satellite2_satellite1);
+            addChannel(satellite1_satellite2);
             addChannel(satellite2_bob);
 
             v_qber.push_back(getQBER());
@@ -135,19 +132,17 @@ void Entanglement::simulateDoubleSatelliteDefault(double precision){
             v_longitude2.push_back(longitude2);
 
             deleteChannel(alice_satellite1);
-            deleteChannel(satellite2_satellite1);
+            deleteChannel(satellite1_satellite2);
             deleteChannel(satellite2_bob);
         }
     }
-
     if (0 < v_qber.size()){
-        const std::string folder = makeFolder("2D", m_heightAboveSeaLevel, m_type);
+        const std::string folder = makeFolder("1D", m_heightAboveSeaLevel, m_type);
         if (folder != "ERROR"){
             dataLogger("qber", folder, v_qber);
             dataLogger("optical", folder, v_optical);
-            dataLogger("longitude1", folder, v_longitude1);
-            dataLogger("longitude2", folder, v_longitude2);
-            dataLogger("temp", folder, temp);
+            dataLogger("longitude", folder, v_longitude1);
+            dataLogger("longitude", folder, v_longitude2);
             //etc
         }
     } else {
@@ -156,8 +151,7 @@ void Entanglement::simulateDoubleSatelliteDefault(double precision){
     }
 }
 
-
-void Entanglement::simulateTripleSatelliteDefault(double precision){
+void PrepareAndMeasure::simulateTripleSatelliteDefault(double precision){
     Device satellite1 = Device("satellite_one", 0.0, 0.0, m_heightAboveSeaLevel);
     Device satellite2 = Device("satellite_two", 0.0, 0.0, m_heightAboveSeaLevel);
     Device satellite3 = Device("satellite_three", 0.0, 0.0, m_heightAboveSeaLevel);
@@ -183,9 +177,10 @@ void Entanglement::simulateTripleSatelliteDefault(double precision){
                 satellite3.setLongitude(longitude3);
                 satellite3.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
 
-                Channel *satellite1_alice;
+
+                Channel *alice_satellite1;
                 try {
-                    satellite1_alice = new Channel(satellite1, m_alice, m_alice_atmosphere);
+                    alice_satellite1 = new Channel(m_alice, satellite1, m_alice_atmosphere);
                 } catch (const std::runtime_error &e){
                     continue;
                 }
@@ -194,15 +189,15 @@ void Entanglement::simulateTripleSatelliteDefault(double precision){
                 try {
                     satellite1_satellite2 = new Channel(satellite1, satellite2);
                 } catch (const std::runtime_error &e){
-                    delete satellite1_alice;
+                    delete alice_satellite1;
                     continue;
                 }
 
-                Channel *satellite3_satellite2;
+                Channel *satellite2_satellite3;
                 try {
-                    satellite3_satellite2 = new Channel(satellite3, satellite2);
+                    satellite2_satellite3 = new Channel(satellite2, satellite3);
                 } catch (const std::runtime_error &e){
-                    delete satellite1_alice;
+                    delete alice_satellite1;
                     delete satellite1_satellite2;
                     continue;
                 }
@@ -211,15 +206,15 @@ void Entanglement::simulateTripleSatelliteDefault(double precision){
                 try {
                     satellite3_bob = new Channel(satellite3, m_bob, m_bob_atmosphere);
                 } catch (const std::runtime_error &e){
-                    delete satellite1_alice;
+                    delete alice_satellite1;
                     delete satellite1_satellite2;
-                    delete satellite3_satellite2;
+                    delete satellite2_satellite3;
                     continue;
                 }
 
-                addChannel(satellite1_alice);
+                addChannel(alice_satellite1);
                 addChannel(satellite1_satellite2);
-                addChannel(satellite3_satellite2);
+                addChannel(satellite2_satellite3);
                 addChannel(satellite3_bob);
 
                 v_qber.push_back(getQBER());
@@ -228,9 +223,9 @@ void Entanglement::simulateTripleSatelliteDefault(double precision){
                 v_longitude2.push_back(longitude2);
                 v_longitude2.push_back(longitude3);
 
-                deleteChannel(satellite1_alice);
+                deleteChannel(alice_satellite1);
                 deleteChannel(satellite1_satellite2);
-                deleteChannel(satellite3_satellite2);
+                deleteChannel(satellite2_satellite3);
                 deleteChannel(satellite3_bob);
             }
         }

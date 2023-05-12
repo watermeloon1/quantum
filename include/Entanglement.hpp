@@ -20,7 +20,7 @@ public:
     void simulateSingleSatelliteUplink(double precision);
 
 private:
-    double getQBER() override;
+    double getQBER() const override;
     static std::string m_type;
 };
 
