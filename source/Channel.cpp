@@ -5,7 +5,7 @@
 #include "../include/tools.hpp"
 
 // Throws a std::runtime_error if an error occurs during initialization.
-Channel::Channel(Device &initiator, Device &receiver, Atmosphere &atmosphere):
+Channel::Channel(const Device &initiator, const Device &receiver, const Atmosphere *atmosphere):
     m_initiator(initiator), m_receiver(receiver), m_atmosphere(atmosphere){
         try {
             initDirection();
@@ -41,6 +41,43 @@ Channel::Channel(Device &initiator, Device &receiver, Atmosphere &atmosphere):
         }
 
         initQuantumBitErrorRate();
+}
+
+Channel::Channel(const Device &initiator, const Device &receiver):
+    m_initiator(initiator), m_receiver(receiver), m_atmosphere(NULL) {
+
+    try {
+        initDirection();
+    } catch (const std::runtime_error &e){
+        global::LOG(e.what());
+        exit(1);
+    }
+
+    if (direction != global::space){
+        global::LOG("ERROR: can not use Channel(cosnt &Device, const &Device) with bases");
+        exit(1);
+    }
+
+    initTheta();
+    initDeltaHeight();
+
+    try {
+        initOpticalDistance();
+    } catch (const std::runtime_error &e){
+        throw std::runtime_error("ERROR: unable to initialize channel ( devices are out of sight )");
+    }
+
+    initSurfaceDistance();
+    initOpticalSectors();
+
+    try {
+        initTransmittance();
+    } catch (const std::runtime_error &e){
+        global::LOG(e.what());
+        exit(1);
+    }
+
+    initQuantumBitErrorRate();
 }
 
 Channel::~Channel() {
@@ -178,16 +215,15 @@ void Channel::initSurfaceDistance() {
 
 void Channel::initZenith() {
 	// This data only needs to be inited before communicating with base
-	if (direction != global::space){
-        const double MAX_ZENITH = 45.0;
+    const double MAX_ZENITH = 45.0;
 
-		double zenithTemp = tools::zenith(deltaHeight, opticalDistance);
-		if (zenithTemp <= MAX_ZENITH){
-			zenith = zenithTemp;
-		} else {
-            throw std::range_error("ERROR: zenith angle is too large for reliable communication");
-        }
+	double zenithTemp = tools::zenith(deltaHeight, opticalDistance);
+	if (zenithTemp <= MAX_ZENITH){
+		zenith = zenithTemp;
+	} else {
+        throw std::range_error("ERROR: zenith angle is too large for reliable communication");
     }
+
 }
 
 void Channel::initOpticalSectors(){
@@ -221,8 +257,8 @@ void Channel::initOpticalSectors(){
 void Channel::initTransmittance(){
     switch (direction){
         case global::uplink:
-            staticTransmittance = tools::staticTransmittance(m_atmosphere.molecularScattering, m_atmosphere.molecularAbsorption, m_atmosphere.aerosolScattering, m_atmosphere.aerosolAbsorption, m_atmosphere.layers, zenith);
-    		coherenceLength = tools::beamWideningEarthSpace(m_initiator.getWaveLength(), opticalSectors, opticalDistance, m_atmosphere.windSpeed, zenith);
+            staticTransmittance = tools::staticTransmittance(m_atmosphere -> molecularScattering, m_atmosphere -> molecularAbsorption, m_atmosphere -> aerosolScattering, m_atmosphere -> aerosolAbsorption, m_atmosphere -> layers, zenith);
+    		coherenceLength = tools::beamWideningEarthSpace(m_initiator.getWaveLength(), opticalSectors, opticalDistance, m_atmosphere -> windSpeed, zenith);
     		beamWidening = tools::beamWideningAtmosphere(opticalDistance, m_receiver.getApertureDiameter(), m_initiator.getWaveLength(), coherenceLength, m_initiator.getFocus());
     		targetingError = tools::targetingError(opticalDistance, m_initiator.getTargetingAngularError());
     		totalScattering = tools::totalScattering(beamWidening, targetingError);
@@ -230,8 +266,8 @@ void Channel::initTransmittance(){
             break;
 
         case global::downlink:
-            staticTransmittance = tools::staticTransmittance(m_atmosphere.molecularScattering, m_atmosphere.molecularAbsorption, m_atmosphere.aerosolScattering, m_atmosphere.aerosolAbsorption, m_atmosphere.layers, zenith);
-    		coherenceLength = tools::beamWideningSpaceEarth(m_initiator.getWaveLength(), opticalSectors, opticalDistance, m_atmosphere.windSpeed, zenith);
+            staticTransmittance = tools::staticTransmittance(m_atmosphere -> molecularScattering, m_atmosphere -> molecularAbsorption, m_atmosphere -> aerosolScattering, m_atmosphere -> aerosolAbsorption, m_atmosphere -> layers, zenith);
+    		coherenceLength = tools::beamWideningSpaceEarth(m_initiator.getWaveLength(), opticalSectors, opticalDistance, m_atmosphere -> windSpeed, zenith);
     		beamWidening = tools::beamWideningAtmosphere(opticalDistance, m_receiver.getApertureDiameter(), m_initiator.getWaveLength(), coherenceLength, m_initiator.getFocus());
     		targetingError = tools::targetingError(opticalDistance, m_initiator.getTargetingAngularError());
     		totalScattering = tools::totalScattering(beamWidening, targetingError);
@@ -252,8 +288,6 @@ void Channel::initTransmittance(){
     }
 
     transmittance = staticTransmittance * dynamicTransmittance;
-    global::LOG(transmittance);
-
 }
 
 void Channel::initQuantumBitErrorRate(){

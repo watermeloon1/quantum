@@ -9,6 +9,9 @@ Atmosphere::Atmosphere(const std::string &climate, const std::string &season, co
     readFile("resource/layer_data.csv");
 }
 
+Atmosphere::Atmosphere(){
+}
+
 Atmosphere::~Atmosphere(){
 }
 

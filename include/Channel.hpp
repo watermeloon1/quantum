@@ -10,7 +10,8 @@ class Atmosphere;
 class Channel
 {
 public:
-    Channel(Device &initiator, Device &receiver, Atmosphere &atmosphere);
+    Channel(const Device &initiator, const Device &receiver, const Atmosphere *atmosphere);
+    Channel(const Device &initiator, const Device &receiver);
     ~Channel();
 
     global::Direction getDirection() const;
@@ -23,9 +24,9 @@ public:
 private:
     global::Direction direction;
 
-    Device &m_initiator;
-    Device &m_receiver;
-    Atmosphere &m_atmosphere;
+    const Device &m_initiator;
+    const Device &m_receiver;
+    const Atmosphere *m_atmosphere;
 
     std::vector<double> opticalSectors;
     double opticalDistance;

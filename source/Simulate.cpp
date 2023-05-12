@@ -3,24 +3,18 @@
 #include "../include/Device.hpp"
 #include "../include/Atmosphere.hpp"
 #include "../include/Channel.hpp"
+#include "../include/Entanglement.hpp"
 
 #include <iostream>
 
 int main(void){
-    Atmosphere atm = Atmosphere("Tropical", "Summer", "Clear");
-    Device dev1 = Device("alice", 0.0, 0.0);
-    Device dev2 = Device("bob", 0.0, 0.0, 500);
-    Channel *chann;
+    const Atmosphere alice_atm = Atmosphere("Midlatitude", "Summer", "Clear");
+    const Atmosphere bob_atm = Atmosphere("Tropical", "Summer", "Hazy");
+    const Device alice = Device("alice", 0.0, 0.0);
+    const Device bob = Device("bob", 3.0, 0.0);
 
-    try {
-        chann = new Channel(dev1, dev2, atm);
-    } catch (const std::runtime_error &e){
-        global::LOG(e.what());
-        return 0;
-    }
+    Entanglement ent = Entanglement(alice, &alice_atm, bob, &alice_atm, 500.0, 0.0, 0.0);
+    ent.simulateDoubleSatelliteDefault(1.0);
 
-    global::LOG(chann -> getQuantumBitErrorRate());
-
-    delete chann;
     return 0;
 }

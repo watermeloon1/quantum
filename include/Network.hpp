@@ -7,12 +7,13 @@
 #include <string>
 
 class Channel;
+class Atmosphere;
 struct Device;
 
 class Network
 {
 public:
-    Network(Device &alice, Device &bob, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral);
+    Network(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral);
     virtual ~Network();
 
     double getOpticalDistance() const;
@@ -32,12 +33,15 @@ protected:
     bool dataLogger(const std::string &filename, const std::string &directory, const std::vector<double> &data);
     std::string makeFolder(const char *prefix, const double heightAboveSeaLevel, const std::string &technology);
 
-    Device &m_alice;
-    Device &m_bob;
+    const Device &m_alice;
+    const Atmosphere *m_alice_atmosphere;
+
+    const Device &m_bob;
+    const Atmosphere *m_bob_atmosphere;
 
     double m_heightAboveSeaLevel;
-    double m_deviationRangeHeight;
-    double m_deviationRangeLateral;
+    const double m_deviationRangeHeight;
+    const double m_deviationRangeLateral;
 
     std::vector<Channel *> m_channels;
 };

@@ -8,6 +8,8 @@ class Atmosphere
 {
 public:
     Atmosphere(const std::string &climate, const std::string &season, const std::string &weather);
+    Atmosphere();
+    
     ~Atmosphere();
 
     double windSpeed = 21.0;

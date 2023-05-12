@@ -1,12 +1,13 @@
 #include "../include/Network.hpp"
 #include "../include/Channel.hpp"
+#include "../include/Device.hpp"
 #include <random>
 #include <sys/stat.h>
 #include <fstream>
 
-Network::Network(Device &alice, Device &bob, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
-    m_alice(alice), m_bob(bob), m_heightAboveSeaLevel(heightAboveSeaLevel), m_deviationRangeHeight(deviationRangeHeight), m_deviationRangeLateral(deviationRangeLateral){
-
+Network::Network(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
+    m_alice(alice), m_alice_atmosphere(alice_atmosphere), m_bob(bob), m_bob_atmosphere(bob_atmosphere), m_heightAboveSeaLevel(heightAboveSeaLevel), m_deviationRangeHeight(deviationRangeHeight), m_deviationRangeLateral(deviationRangeLateral){
+        
     }
 
 Network::~Network(){

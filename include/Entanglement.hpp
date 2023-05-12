@@ -5,11 +5,12 @@
 #include <string>
 
 struct Device;
+class Atmosphere;
 
 class Entanglement : public Network
 {
 public:
-    Entanglement(Device &alice, Device &bob, const double heightAboveSeaLevel = 200.0, const double deviationRangeHeight = 0.0, const double deviationRangeLateral = 0.0);
+    Entanglement(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel = 200.0, const double deviationRangeHeight = 0.0, const double deviationRangeLateral = 0.0);
     ~Entanglement();
 
     void simulateSingleSatelliteDefault(double precision) override;
