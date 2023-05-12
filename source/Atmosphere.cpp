@@ -74,3 +74,5 @@ void Atmosphere::readFile(const std::string &directory) {
     file.close();
     std::cout << "LOG: read data from \"" << directory << "\" " << "successfully" << std::endl;
 }
+
+// TODO: check for argument correctness (segmentation fault)

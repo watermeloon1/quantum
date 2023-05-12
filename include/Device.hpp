@@ -10,6 +10,7 @@ public:
     ~Device();
 
     std::string getType() const;
+    std::string getName() const;
 
     double getLatitude() const;
     double getLongitude() const;

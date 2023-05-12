@@ -20,7 +20,7 @@ void Device::initType() {
 
 void Device::initDefaultOpticalParameters() {
     focus = global::optimal;
-    noise = 0.0000005;
+    noise = 0.000005;
     waveLength = 860;
     apertureDiameter = 0.2;
     mirrorDiameter = .8;
@@ -33,6 +33,10 @@ void Device::initDefaultOpticalParameters() {
 
 std::string Device::getType() const {
     return type;
+}
+
+std::string Device::getName() const {
+    return m_name;
 }
 
 
