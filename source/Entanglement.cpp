@@ -5,6 +5,10 @@
 
 std::string Entanglement::m_type = "entanglement-based";
 
+std::string Entanglement::getType() const {
+    return m_type;
+}
+
 Entanglement::Entanglement(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
     Network(alice, alice_atmosphere, bob, bob_atmosphere, heightAboveSeaLevel, deviationRangeHeight, deviationRangeLateral){
 
@@ -21,6 +25,7 @@ double Entanglement::getQBER() const {
     return 1.0 - quantumBitSuccessRate;
 }
 
+/*
 void Entanglement::simulateSingleSatelliteDefault(double precision){
     Device satellite = Device("satellite", 0.0, 0.0, m_heightAboveSeaLevel);
 
@@ -73,6 +78,7 @@ void Entanglement::simulateSingleSatelliteDefault(double precision){
             " and " << m_bob.getName() << std::endl;
     }
 }
+*/
 
 void Entanglement::simulateDoubleSatelliteDefault(double precision){
     Device satellite1 = Device("satellite_one", 0.0, 0.0, m_heightAboveSeaLevel);

@@ -14,7 +14,7 @@ int main(void){
     const Device bob = Device("bob", 0.0, 8.0);
 
     Entanglement ent = Entanglement(alice, &alice_atm, bob, &alice_atm, 500.0, 25.0, 0.1);
-    ent.simulateDoubleSatelliteDefault(1.0);
+    //ent.simulateDoubleSatelliteDefault(1.0);
 
     return 0;
 }

@@ -7,40 +7,12 @@
 // Throws a std::runtime_error if an error occurs during initialization.
 Channel::Channel(const Device &initiator, const Device &receiver, const Atmosphere *atmosphere):
     m_initiator(initiator), m_receiver(receiver), m_atmosphere(atmosphere){
-        try {
-            initDirection();
-        } catch (const std::runtime_error &e){
-            global::LOG(e.what());
-            exit(1);
-        }
-
-        initTheta();
-        initDeltaHeight();
-
-        try {
-            initOpticalDistance();
-        } catch (const std::runtime_error &e){
-            throw std::runtime_error("ERROR: unable to initialize channel ( devices are out of sight )");
-        }
-
-        initSurfaceDistance();
-
-        try {
-            initZenith();
-        } catch (const std::range_error &e){
-            throw std::runtime_error("ERROR: communication is insecure ( zenith is too large )");
-        }
-
-        initOpticalSectors();
-
-        try {
-            initTransmittance();
-        } catch (const std::runtime_error &e){
-            global::LOG(e.what());
-            exit(1);
-        }
-
-        initQuantumBitErrorRate();
+    try {
+        initDirection();
+    } catch (const std::runtime_error &e){
+        global::LOG(e.what());
+        exit(1);
+    }
 }
 
 Channel::Channel(const Device &initiator, const Device &receiver):
@@ -52,14 +24,15 @@ Channel::Channel(const Device &initiator, const Device &receiver):
         global::LOG(e.what());
         exit(1);
     }
+}
 
-    if (direction != global::space){
-        global::LOG("ERROR: can not use Channel(cosnt &Device, const &Device) with bases");
-        exit(1);
-    }
+Channel::~Channel() {
+}
+
+void Channel::update() {
 
     initTheta();
-    initDeltaHeight();
+	initDeltaHeight();
 
     try {
         initOpticalDistance();
@@ -67,20 +40,27 @@ Channel::Channel(const Device &initiator, const Device &receiver):
         throw std::runtime_error("ERROR: unable to initialize channel ( devices are out of sight )");
     }
 
-    initSurfaceDistance();
-    initOpticalSectors();
 
-    try {
+	initSurfaceDistance();
+
+	if (direction != global::space) {
+		try {
+		   initZenith();
+		} catch (const std::range_error &e){
+			throw std::runtime_error("ERROR: communication is insecure ( zenith is too large )");
+		}
+	}
+
+	initOpticalSectors();
+
+	try {
         initTransmittance();
     } catch (const std::runtime_error &e){
         global::LOG(e.what());
         exit(1);
     }
 
-    initQuantumBitErrorRate();
-}
-
-Channel::~Channel() {
+	initQuantumBitErrorRate();	
 }
 
 void Channel::initDirection() {

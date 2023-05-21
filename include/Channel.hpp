@@ -20,6 +20,7 @@ public:
     double getZenith() const;
     double getOpticalDistance() const;
     double getTransmittance() const;
+    void update();
 
 private:
     global::Direction direction;

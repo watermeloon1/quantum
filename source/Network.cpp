@@ -42,6 +42,13 @@ void Network::deleteChannel(Channel *channel) {
     }
 }
 
+void Network::deleteChannels() {
+    for (std::vector<Channel*>::iterator it = m_channels.end(); it !=  m_channels.begin(); --it) {
+        m_channels.erase(it);
+        delete (*it);
+    }
+}
+
 bool Network::dataLogger(const std::string &filename, const std::string &directory, const std::vector<double> &data) {
     const std::string filepath = "data/" + directory + "/" + filename + ".dat";
 
@@ -75,4 +82,53 @@ std::string Network::makeFolder(const char *prefix, const double heightAboveSeaL
         return "ERROR";
     }
     return dirName;
+}
+
+// may throw a runtime_error, handled in simulation
+void Network::updateChannels() {
+     for (std::vector<Channel*>::const_iterator it = m_channels.begin(); it != m_channels.end(); ++it) {
+         (*it) -> update();
+     }
+}
+
+#define MAX_LONGITUDE 180.0
+void Network::simulateSingleSatellite(double precision) {
+
+    std::vector<double> v_qber;
+    std::vector<double> v_optical; 
+    std::vector<double> v_longitude;
+
+    Device satellite = Device("satellite", 0.0, 0.0, m_heightAboveSeaLevel);
+    initChannels(satellite); // pure virtual function with heap memory allocs
+
+    for (double longitude = -(MAX_LONGITUDE); longitude < MAX_LONGITUDE; longitude += precision) {
+        satellite.setLatitude(getRandom(m_deviationRangeLateral));
+        satellite.setLongitude(longitude);
+        satellite.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+
+        try {
+            updateChannels();    
+        } catch (const std::runtime_error &e) {
+            continue;
+        }
+        
+        v_qber.push_back(getQBER());
+        v_optical.push_back(getOpticalDistance());
+        v_longitude.push_back(longitude);
+    }
+
+    deleteChannels(); // frees the newly made channels in the pure virtual initChannels function
+    
+    if (0 < v_qber.size()){
+        const std::string folder = makeFolder("1D", m_heightAboveSeaLevel, getType());
+        if (folder != "ERROR"){
+            dataLogger("qber", folder, v_qber);
+            dataLogger("optical", folder, v_optical);
+            dataLogger("longitude", folder, v_longitude);
+            //etc
+        }
+    } else {
+        std::cerr << "WARNING: the network is unable to establish communication between " << m_alice.getName() <<
+            " and " << m_bob.getName() << std::endl;
+    }
 }
