@@ -4,7 +4,7 @@
 
 This project implements a simulation of satellite QKD protocols for different network topologies using various entanglement-based and prepare-and-measure schemes. The simulation compares the quantum bit error rate (QBER) of the above-mentioned protocols to assess their capabilities.
 
-## Getting Started
+## Getting Started
 
 To build the program, run `make all`. This will create an executable file `./program`, that you can run from the terminal. Please note that the program is provided as-is and is not meant to be run as a black-box without any knowledge of its underlying code.
 
