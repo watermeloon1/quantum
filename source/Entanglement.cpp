@@ -21,11 +21,16 @@ double Entanglement::getQBER() const {
 
     
 void Entanglement::initChannels(Device &satellite) {
-    
+    Channel* sat_alice = new Channel(satellite, m_alice, m_alice_atmosphere);
+    Channel* sat_bob = new Channel(satellite, m_bob, m_bob_atmosphere);
+    addChannel(sat_alice);
+    addChannel(sat_bob);
 }
+
 void Entanglement::initChannels(Device &satellite1, Device &satellite2) {
     
 }
+
 void Entanglement::initChannels(Device &satellite1, Device &satellite2, Device &satellite3) {
     
 }

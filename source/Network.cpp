@@ -46,9 +46,9 @@ void Network::deleteChannel(Channel *channel) {
 }
 
 void Network::deleteChannels() {
-    for (std::vector<Channel*>::iterator it = m_channels.end(); it !=  m_channels.begin(); --it) {
-        m_channels.erase(it);
+    for (std::vector<Channel*>::iterator it = m_channels.end() - 1; it !=  m_channels.begin(); --it) {
         delete (*it);
+        m_channels.erase(it);
     }
 }
 
