@@ -22,14 +22,21 @@ public:
     void addChannel(Channel *channel);
     void deleteChannel(Channel *channel);
 
+    void deleteChannels();
+    void updateChannels();
+    
+    void simulateSingleSatellite(double precision);
+    void simulateDoubleSatellite(double precision);
+    void simulateTripleSatellite(double precision);
+
 protected:
-    static std::string type;
-
-    virtual void simulateSingleSatelliteDefault(double precision) = 0;
-    virtual void simulateDoubleSatelliteDefault(double precision) = 0;
-    virtual void simulateTripleSatelliteDefault(double precision) = 0;
     virtual double getQBER() const = 0;
-
+    virtual std::string getType() const = 0;
+    
+    virtual void initChannels(Device &satellite) = 0;
+    virtual void initChannels(Device &satellite1, Device &satellite2) = 0;
+    virtual void initChannels(Device &satellite1, Device &satellite2, Device &satellite3) = 0;
+    
     bool dataLogger(const std::string &filename, const std::string &directory, const std::vector<double> &data);
     std::string makeFolder(const char *prefix, const double heightAboveSeaLevel, const std::string &technology);
 
@@ -47,3 +54,5 @@ protected:
 };
 
 #endif
+
+// TODO:: rethink private and public members visibility

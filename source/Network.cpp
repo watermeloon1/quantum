@@ -6,8 +6,7 @@
 #include <fstream>
 
 Network::Network(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
-    m_alice(alice), m_alice_atmosphere(alice_atmosphere), m_bob(bob), m_bob_atmosphere(bob_atmosphere), m_heightAboveSeaLevel(heightAboveSeaLevel), m_deviationRangeHeight(deviationRangeHeight), m_deviationRangeLateral(deviationRangeLateral){
-        
+    m_alice(alice), m_alice_atmosphere(alice_atmosphere), m_bob(bob), m_bob_atmosphere(bob_atmosphere), m_heightAboveSeaLevel(heightAboveSeaLevel), m_deviationRangeHeight(deviationRangeHeight), m_deviationRangeLateral(deviationRangeLateral){        
     }
 
 Network::~Network(){
@@ -39,6 +38,13 @@ void Network::deleteChannel(Channel *channel) {
         delete channel;
     } else {
         std::cout << "Channel pointer not found in vector" << std::endl;
+    }
+}
+
+void Network::deleteChannels() {
+    for (std::vector<Channel*>::iterator it = m_channels.end() - 1; it !=  m_channels.begin(); --it) {
+        delete (*it);
+        m_channels.erase(it);
     }
 }
 
@@ -76,3 +82,176 @@ std::string Network::makeFolder(const char *prefix, const double heightAboveSeaL
     }
     return dirName;
 }
+
+// may throw a runtime_error, handled in simulation
+void Network::updateChannels() {
+     for (std::vector<Channel*>::const_iterator it = m_channels.begin(); it != m_channels.end(); ++it) {
+         (*it) -> update();
+     }
+}
+
+#define MAX_LONGITUDE 180.0
+void Network::simulateSingleSatellite(double precision) {
+
+    std::vector<double> v_qber;
+    std::vector<double> v_optical; 
+    std::vector<double> v_longitude;
+
+    Device satellite = Device("satellite", 0.0, 0.0, m_heightAboveSeaLevel);
+
+    initChannels(satellite); // pure virtual function with heap memory allocs
+
+    for (double longitude = -(MAX_LONGITUDE); longitude < MAX_LONGITUDE; longitude += precision) {
+        satellite.setLatitude(getRandom(m_deviationRangeLateral));
+        satellite.setLongitude(longitude);
+        satellite.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+
+        try {
+            updateChannels();    
+        } catch (const std::runtime_error &e) {
+            continue;
+        }
+        
+        v_qber.push_back(getQBER());
+        v_optical.push_back(getOpticalDistance());
+        v_longitude.push_back(longitude);
+    }
+
+    deleteChannels(); // frees the newly made channels in the pure virtual initChannels function
+    
+    if (0 < v_qber.size()){
+        const std::string folder = makeFolder("1D", m_heightAboveSeaLevel, getType());
+        if (folder != "ERROR"){
+            dataLogger("qber", folder, v_qber);
+            dataLogger("optical", folder, v_optical);
+            dataLogger("longitude", folder, v_longitude);
+            //etc
+        }
+    } else {
+        std::cerr << "WARNING: the network is unable to establish communication between " << m_alice.getName() <<
+            " and " << m_bob.getName() << std::endl;
+    }
+}
+
+void Network::simulateDoubleSatellite(double precision) {
+
+    std::vector<double> v_qber;
+    std::vector<double> v_optical; 
+    std::vector<double> v_longitude1;
+    std::vector<double> v_longitude2;
+
+    Device satellite1 = Device("satellite1", 0.0, 0.0, m_heightAboveSeaLevel);
+    Device satellite2 = Device("satellite2", 0.0, 0.0, m_heightAboveSeaLevel);
+
+    initChannels(satellite1, satellite2); // pure virtual function with heap memory allocs
+
+    for (double longitude1 = -(MAX_LONGITUDE); longitude1 < MAX_LONGITUDE; longitude1 += precision) {
+
+        satellite1.setLatitude(getRandom(m_deviationRangeLateral));
+        satellite1.setLongitude(longitude1);
+        satellite1.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+        
+        for (double longitude2 = longitude1; longitude2 < MAX_LONGITUDE; longitude2 += precision) {
+        
+            satellite2.setLatitude(getRandom(m_deviationRangeLateral));
+            satellite2.setLongitude(longitude2);
+            satellite2.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+
+            try {
+                updateChannels();    
+            } catch (const std::runtime_error &e) {
+                continue;
+            }
+            
+            v_qber.push_back(getQBER());
+            v_optical.push_back(getOpticalDistance());
+            v_longitude1.push_back(longitude1);
+            v_longitude2.push_back(longitude2);
+        }        
+    }
+
+    deleteChannels(); // frees the newly made channels in the pure virtual initChannels function
+    
+    if (0 < v_qber.size()){
+        const std::string folder = makeFolder("2D", m_heightAboveSeaLevel, getType());
+        if (folder != "ERROR"){
+            dataLogger("qber", folder, v_qber);
+            dataLogger("optical", folder, v_optical);
+            dataLogger("longitude1", folder, v_longitude1);
+            dataLogger("longitude2", folder, v_longitude2);
+            //etc
+        }
+    } else {
+        std::cerr << "WARNING: the network is unable to establish communication between " << m_alice.getName() <<
+            " and " << m_bob.getName() << std::endl;
+    }
+}
+
+void Network::simulateTripleSatellite(double precision) {
+
+    std::vector<double> v_qber;
+    std::vector<double> v_optical; 
+    std::vector<double> v_longitude1;
+    std::vector<double> v_longitude2;
+    std::vector<double> v_longitude3;
+
+    Device satellite1 = Device("satellite1", 0.0, 0.0, m_heightAboveSeaLevel);
+    Device satellite2 = Device("satellite2", 0.0, 0.0, m_heightAboveSeaLevel);
+    Device satellite3 = Device("satellite3", 0.0, 0.0, m_heightAboveSeaLevel);
+
+    initChannels(satellite1, satellite2, satellite3); // pure virtual function with heap memory allocs
+
+    for (double longitude1 = -(MAX_LONGITUDE); longitude1 < MAX_LONGITUDE; longitude1 += precision) {
+
+        satellite1.setLatitude(getRandom(m_deviationRangeLateral));
+        satellite1.setLongitude(longitude1);
+        satellite1.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+        
+        for (double longitude2 = longitude1; longitude2 < MAX_LONGITUDE; longitude2 += precision) {
+        
+            satellite2.setLatitude(getRandom(m_deviationRangeLateral));
+            satellite2.setLongitude(longitude2);
+            satellite2.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+
+            for (double longitude3 = longitude2; longitude3 < MAX_LONGITUDE; longitude3 += precision) {
+        
+                satellite3.setLatitude(getRandom(m_deviationRangeLateral));
+                satellite3.setLongitude(longitude3);
+                satellite3.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+            
+                try {
+                    updateChannels();    
+                } catch (const std::runtime_error &e) {
+                    continue;
+                }
+                
+                v_qber.push_back(getQBER());
+                v_optical.push_back(getOpticalDistance());
+                v_longitude1.push_back(longitude1);
+                v_longitude2.push_back(longitude2);
+                v_longitude3.push_back(longitude3);
+            }
+        }
+    }
+
+    deleteChannels(); // frees the newly made channels in the pure virtual initChannels function
+    
+    if (0 < v_qber.size()){
+        const std::string folder = makeFolder("3D", m_heightAboveSeaLevel, getType());
+        if (folder != "ERROR"){
+            dataLogger("qber", folder, v_qber);
+            dataLogger("optical", folder, v_optical);
+            dataLogger("longitude1", folder, v_longitude1);
+            dataLogger("longitude2", folder, v_longitude2);
+            dataLogger("longitude3", folder, v_longitude3);
+            //etc
+        }
+    } else {
+        std::cerr << "WARNING: the network is unable to establish communication between " << m_alice.getName() <<
+            " and " << m_bob.getName() << std::endl;
+    }
+}
+
+
+    
+// TODO: make m_type consistent
