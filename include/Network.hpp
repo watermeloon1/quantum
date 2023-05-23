@@ -25,14 +25,14 @@ public:
     void deleteChannels();
     void updateChannels();
 
-    virtual std::string getType() const = 0;
+    std::string getType() const;
 
 protected:
-    static std::string type;
+    std::string m_type = "network";
 
     void simulateSingleSatellite(double precision);
-    virtual void simulateDoubleSatelliteDefault(double precision) = 0;
-    virtual void simulateTripleSatelliteDefault(double precision) = 0;
+    // void simulateDoubleSatelliteDefault(double precision) = 0;
+    // void simulateTripleSatelliteDefault(double precision) = 0;
     virtual double getQBER() const = 0;
     
     virtual void initChannels(Device &satellite) = 0;

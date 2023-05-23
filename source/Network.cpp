@@ -6,11 +6,14 @@
 #include <fstream>
 
 Network::Network(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
-    m_alice(alice), m_alice_atmosphere(alice_atmosphere), m_bob(bob), m_bob_atmosphere(bob_atmosphere), m_heightAboveSeaLevel(heightAboveSeaLevel), m_deviationRangeHeight(deviationRangeHeight), m_deviationRangeLateral(deviationRangeLateral){
-        
+    m_alice(alice), m_alice_atmosphere(alice_atmosphere), m_bob(bob), m_bob_atmosphere(bob_atmosphere), m_heightAboveSeaLevel(heightAboveSeaLevel), m_deviationRangeHeight(deviationRangeHeight), m_deviationRangeLateral(deviationRangeLateral){        
     }
 
 Network::~Network(){
+}
+
+std::string Network::getType() const {
+    return m_type;
 }
 
 double Network::getOpticalDistance() const {

@@ -3,8 +3,6 @@
 #include "../include/Atmosphere.hpp"
 #include "../include/Channel.hpp"
 
-std::string PrepareAndMeasure::m_type = "prepare-and-measure";
-
 PrepareAndMeasure::PrepareAndMeasure(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
     Network(alice, alice_atmosphere, bob, bob_atmosphere, heightAboveSeaLevel, deviationRangeHeight, deviationRangeLateral){
 
@@ -26,6 +24,19 @@ double PrepareAndMeasure::getQBER() const {
     return quantumBitErrorRate;
 }
 
+    
+void PrepareAndMeasure::initChannels(Device &satellite) {
+    
+}
+void PrepareAndMeasure::initChannels(Device &satellite1, Device &satellite2) {
+    
+}
+void PrepareAndMeasure::initChannels(Device &satellite1, Device &satellite2, Device &satellite3) {
+    
+}
+
+
+/*
 void PrepareAndMeasure::simulateSingleSatelliteDefault(double precision){
     Device satellite = Device("satellite", 0.0, 0.0, m_heightAboveSeaLevel);
 
@@ -246,3 +257,4 @@ void PrepareAndMeasure::simulateTripleSatelliteDefault(double precision){
             " and " << m_bob.getName() << std::endl;
     }
 }
+*/
