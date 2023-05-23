@@ -12,10 +12,6 @@ Network::Network(const Device &alice, const Atmosphere *alice_atmosphere, const 
 Network::~Network(){
 }
 
-std::string Network::getType() const {
-    return m_type;
-}
-
 double Network::getOpticalDistance() const {
     double totalDistance = 0.0;
     for (std::vector<Channel*>::const_iterator it = m_channels.begin(); it != m_channels.end(); ++it) {

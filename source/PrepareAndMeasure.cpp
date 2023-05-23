@@ -24,6 +24,9 @@ double PrepareAndMeasure::getQBER() const {
     return quantumBitErrorRate;
 }
 
+std::string PrepareAndMeasure::getType() const {
+    return "prepare-and-measure";
+}
     
 void PrepareAndMeasure::initChannels(Device &satellite) {
     
@@ -34,6 +37,7 @@ void PrepareAndMeasure::initChannels(Device &satellite) {
     addChannel(satellite_bob);
     
 }
+
 void PrepareAndMeasure::initChannels(Device &satellite1, Device &satellite2) {
     
     Channel* alice_satellite1 = new Channel(m_alice, satellite1, m_alice_atmosphere);

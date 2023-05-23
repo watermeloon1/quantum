@@ -19,6 +19,9 @@ double Entanglement::getQBER() const {
     return 1.0 - quantumBitSuccessRate;
 }
 
+std::string Entanglement::getType() const {
+    return "entanglement";
+}
     
 void Entanglement::initChannels(Device &satellite) {
 

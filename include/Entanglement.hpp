@@ -14,13 +14,14 @@ public:
     ~Entanglement();
 
     // void simulateSingleSatelliteUplink(double precision);
-    
+
     void initChannels(Device &satellite) override;
     void initChannels(Device &satellite1, Device &satellite2) override;
     void initChannels(Device &satellite1, Device &satellite2, Device &satellite3) override;
 
 private:
     double getQBER() const override;
+    std::string getType() const override;
 };
 
 #endif

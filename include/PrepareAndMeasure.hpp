@@ -19,6 +19,7 @@ public:
 
 private:
     double getQBER() const override;
+    std::string getType() const override;
 };
 
 #endif
