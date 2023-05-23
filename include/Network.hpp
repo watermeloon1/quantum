@@ -27,8 +27,8 @@ public:
 
     std::string getType() const;
     void simulateSingleSatellite(double precision);
-    // void simulateDoubleSatelliteDefault(double precision) = 0;
-    // void simulateTripleSatelliteDefault(double precision) = 0;
+    void simulateDoubleSatellite(double precision);
+    void simulateTripleSatellite(double precision);
 
 protected:
     std::string m_type = "network";
