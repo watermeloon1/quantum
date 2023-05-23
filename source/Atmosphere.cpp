@@ -6,14 +6,12 @@
 
 Atmosphere::Atmosphere(const std::string &climate, const std::string &season, const std::string &weather):
     m_climate(climate), m_season(season), m_weather(weather){
+    
     readFile("resource/layer_data.csv");
 }
 
-Atmosphere::Atmosphere(){
-}
-
-Atmosphere::~Atmosphere(){
-}
+Atmosphere::Atmosphere(){}
+Atmosphere::~Atmosphere(){}
 
 void Atmosphere::readFile(const std::string &directory) {
     // Open the file
@@ -21,7 +19,7 @@ void Atmosphere::readFile(const std::string &directory) {
 
     // Check if the file is open
     if (!file.is_open()) {
-        std::cout << "ERROR: unable to open file: \"" << directory << "\""<< std::endl;
+        std::cerr << "ERROR: unable to open file: \"" << directory << "\""<< std::endl;
         exit(1);
     }
 
@@ -55,8 +53,14 @@ void Atmosphere::readFile(const std::string &directory) {
 				else if (m_season == "Winter"){
 					molecularAbsorption.emplace_back(row[8]);
 					molecularScattering.emplace_back(row[9]);
-				}
-			}
+				} else {
+                    std::cerr << "ERROR: can not recognise provided season\n" << std::endl;
+                    exit(1);
+                }
+			} else {
+                std::cerr << "ERROR: can not recognise provided climate\n" << std::endl;
+                exit(1);
+            }
 
 			if (m_weather == "Clear"){
 				aerosolAbsorption.emplace_back(row[11]);
@@ -65,7 +69,10 @@ void Atmosphere::readFile(const std::string &directory) {
 			else if (m_weather == "Hazy"){
 				aerosolAbsorption.emplace_back(row[14]);
 				aerosolScattering.emplace_back(row[15]);
-			}
+			} else {
+                std::cerr << "ERROR: can not recognise provided weather\n" << std::endl;
+                exit(1);
+            }
         }
         ++lineCount;
     }

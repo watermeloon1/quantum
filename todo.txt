@@ -1,5 +1,3 @@
 // TODO: mitigate deviation to a more logical place
 // TODO: check for argument correctness (segmentation fault)
-// TODO: create parent simulation functions in the network class
-// TODO: to simulate with parent class make channel the whole channel constructor a functions so it can be reinitialised
 // TODO: make the simulations deviate in the 3 axises (longitude too)
