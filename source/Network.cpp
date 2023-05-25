@@ -5,8 +5,7 @@
 #include <sys/stat.h>
 #include <fstream>
 
-Network::Network(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
-    m_alice(alice), m_alice_atmosphere(alice_atmosphere), m_bob(bob), m_bob_atmosphere(bob_atmosphere), m_heightAboveSeaLevel(heightAboveSeaLevel), m_deviationRangeHeight(deviationRangeHeight), m_deviationRangeLateral(deviationRangeLateral){        
+Network::Network(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel): m_alice(alice), m_alice_atmosphere(alice_atmosphere), m_bob(bob), m_bob_atmosphere(bob_atmosphere), m_heightAboveSeaLevel(heightAboveSeaLevel){        
     }
 
 Network::~Network(){
@@ -44,8 +43,8 @@ void Network::deleteChannel(Channel *channel) {
 void Network::deleteChannels() {
     for (std::vector<Channel*>::iterator it = m_channels.end() - 1; it !=  m_channels.begin(); --it) {
         delete (*it);
-        m_channels.erase(it);
     }
+    m_channels.clear();
 }
 
 bool Network::dataLogger(const std::string &filename, const std::string &directory, const std::vector<double> &data) {
@@ -90,9 +89,16 @@ void Network::updateChannels() {
      }
 }
 
-#define MAX_LONGITUDE 180.0
-void Network::simulateSingleSatellite(double precision) {
+void Network::setPosition(Device* satellite, double longitude, const double deviationRangeHeight, const double deviationRangeLateral, const double deviationRangeLongitudinal) {
 
+        satellite -> setLatitude(0.0 + getRandom(deviationRangeLateral));
+        satellite -> setLongitude(longitude + getRandom(deviationRangeLongitudinal));
+        satellite -> setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(deviationRangeHeight));
+}
+
+#define MAX_LONGITUDE 180.0
+void Network::simulateSingleSatellite(const double precision, const double deviationRangeHeight, const double deviationRangeLateral, const double deviationRangeLongitudinal) {
+    
     std::vector<double> v_qber;
     std::vector<double> v_optical; 
     std::vector<double> v_longitude;
@@ -102,19 +108,19 @@ void Network::simulateSingleSatellite(double precision) {
     initChannels(satellite); // pure virtual function with heap memory allocs
 
     for (double longitude = -(MAX_LONGITUDE); longitude < MAX_LONGITUDE; longitude += precision) {
-        satellite.setLatitude(getRandom(m_deviationRangeLateral));
-        satellite.setLongitude(longitude);
-        satellite.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
-
+        setPosition(&satellite, longitude, deviationRangeHeight, deviationRangeLateral, deviationRangeLongitudinal);
+        
         try {
-            updateChannels();    
+            updateChannels();
         } catch (const std::runtime_error &e) {
             continue;
         }
-        
+
+        // seg fault on getQBER() call
         v_qber.push_back(getQBER());
         v_optical.push_back(getOpticalDistance());
         v_longitude.push_back(longitude);
+        
     }
 
     deleteChannels(); // frees the newly made channels in the pure virtual initChannels function
@@ -133,8 +139,10 @@ void Network::simulateSingleSatellite(double precision) {
     }
 }
 
-void Network::simulateDoubleSatellite(double precision) {
+void Network::simulateDoubleSatellite(const double precision, const double deviationRangeHeight, const double deviationRangeLateral, const double deviationRangeLongitudinal) {
 
+    (void) deviationRangeLongitudinal;
+    
     std::vector<double> v_qber;
     std::vector<double> v_optical; 
     std::vector<double> v_longitude1;
@@ -146,16 +154,10 @@ void Network::simulateDoubleSatellite(double precision) {
     initChannels(satellite1, satellite2); // pure virtual function with heap memory allocs
 
     for (double longitude1 = -(MAX_LONGITUDE); longitude1 < MAX_LONGITUDE; longitude1 += precision) {
-
-        satellite1.setLatitude(getRandom(m_deviationRangeLateral));
-        satellite1.setLongitude(longitude1);
-        satellite1.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+        setPosition(&satellite1, longitude1, deviationRangeHeight, deviationRangeLateral, deviationRangeLongitudinal);
         
-        for (double longitude2 = longitude1; longitude2 < MAX_LONGITUDE; longitude2 += precision) {
-        
-            satellite2.setLatitude(getRandom(m_deviationRangeLateral));
-            satellite2.setLongitude(longitude2);
-            satellite2.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+        for (double longitude2 = longitude1; longitude2 < MAX_LONGITUDE; longitude2 += precision) {        
+            setPosition(&satellite2, longitude2, deviationRangeHeight, deviationRangeLateral, deviationRangeLongitudinal);
 
             try {
                 updateChannels();    
@@ -187,8 +189,9 @@ void Network::simulateDoubleSatellite(double precision) {
     }
 }
 
-void Network::simulateTripleSatellite(double precision) {
+void Network::simulateTripleSatellite(const double precision, const double deviationRangeHeight, const double deviationRangeLateral, const double deviationRangeLongitudinal) {
 
+    (void) deviationRangeLongitudinal; 
     std::vector<double> v_qber;
     std::vector<double> v_optical; 
     std::vector<double> v_longitude1;
@@ -202,22 +205,13 @@ void Network::simulateTripleSatellite(double precision) {
     initChannels(satellite1, satellite2, satellite3); // pure virtual function with heap memory allocs
 
     for (double longitude1 = -(MAX_LONGITUDE); longitude1 < MAX_LONGITUDE; longitude1 += precision) {
-
-        satellite1.setLatitude(getRandom(m_deviationRangeLateral));
-        satellite1.setLongitude(longitude1);
-        satellite1.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+        setPosition(&satellite1, longitude1, deviationRangeHeight, deviationRangeLateral, deviationRangeLongitudinal);
         
         for (double longitude2 = longitude1; longitude2 < MAX_LONGITUDE; longitude2 += precision) {
-        
-            satellite2.setLatitude(getRandom(m_deviationRangeLateral));
-            satellite2.setLongitude(longitude2);
-            satellite2.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+            setPosition(&satellite2, longitude2, deviationRangeHeight, deviationRangeLateral, deviationRangeLongitudinal);
 
             for (double longitude3 = longitude2; longitude3 < MAX_LONGITUDE; longitude3 += precision) {
-        
-                satellite3.setLatitude(getRandom(m_deviationRangeLateral));
-                satellite3.setLongitude(longitude3);
-                satellite3.setHeightAboveSeaLevel(m_heightAboveSeaLevel + getRandom(m_deviationRangeHeight));
+                setPosition(&satellite3, longitude3, deviationRangeHeight, deviationRangeLateral, deviationRangeLongitudinal);
             
                 try {
                     updateChannels();    
@@ -252,6 +246,5 @@ void Network::simulateTripleSatellite(double precision) {
     }
 }
 
-
-    
-// TODO: make m_type consistent
+// TODO: decrease the number of simulation functions to one with template metaprogramming
+// TODO: fix memory leak in initChannels

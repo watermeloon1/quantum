@@ -3,8 +3,7 @@
 #include "../include/Atmosphere.hpp"
 #include "../include/Channel.hpp"
 
-Entanglement::Entanglement(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel, const double deviationRangeHeight, const double deviationRangeLateral):
-    Network(alice, alice_atmosphere, bob, bob_atmosphere, heightAboveSeaLevel, deviationRangeHeight, deviationRangeLateral){
+Entanglement::Entanglement(const Device &alice, const Atmosphere *alice_atmosphere, const Device &bob, const Atmosphere *bob_atmosphere, const double heightAboveSeaLevel) : Network(alice, alice_atmosphere, bob, bob_atmosphere, heightAboveSeaLevel) {
 
 }
 
@@ -13,7 +12,7 @@ Entanglement::~Entanglement(){
 
 double Entanglement::getQBER() const {
     double quantumBitSuccessRate = 1.0;
-    for(std::vector<Channel*>::const_iterator it = m_channels.begin(); it != m_channels.end(); ++it){
+    for(std::vector<Channel*>::const_iterator it = m_channels.begin(); it != m_channels.end(); ++it) {
         quantumBitSuccessRate *= 1.0 - (*it) -> getQuantumBitErrorRate();
     }
     return 1.0 - quantumBitSuccessRate;

@@ -13,8 +13,8 @@ int main(void){
     const Device alice = Device("alice", 0.0, 0.0);
     const Device bob = Device("bob", 0.0, 3.0);
 
-    Entanglement ent = Entanglement(alice, &alice_atm, bob, &alice_atm, 500.0, 25.0, 0.1);
-    ent.simulateSingleSatellite(1.0);
+    Entanglement ent = Entanglement(alice, &alice_atm, bob, &alice_atm, 500.0);
+    ent.simulateSingleSatellite(1.0, 25.0, 0.1, 0.0);
 
     return 0;
 }
