@@ -41,8 +41,8 @@ void Network::deleteChannel(Channel *channel) {
 }
 
 void Network::deleteChannels() {
-    for (std::vector<Channel*>::iterator it = m_channels.end() - 1; it !=  m_channels.begin(); --it) {
-        delete (*it);
+    for (std::vector<Channel*>::iterator it = m_channels.begin(); it != m_channels.end(); ++it) {
+        delete *it;
     }
     m_channels.clear();
 }
@@ -247,4 +247,3 @@ void Network::simulateTripleSatellite(const double precision, const double devia
 }
 
 // TODO: decrease the number of simulation functions to one with template metaprogramming
-// TODO: fix memory leak in initChannels
