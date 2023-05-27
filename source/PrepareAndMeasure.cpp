@@ -29,34 +29,22 @@ std::string PrepareAndMeasure::getType() const {
     
 void PrepareAndMeasure::initChannels(Device &satellite) {
     
-    Channel* alice_satellite = new Channel(m_alice, satellite, m_alice_atmosphere);
-    Channel* satellite_bob = new Channel(satellite, m_bob, m_bob_atmosphere);
-
-    addChannel(alice_satellite);
-    addChannel(satellite_bob);
+    addChannel(new Channel(m_alice, satellite, m_alice_atmosphere));
+    addChannel(new Channel(satellite, m_bob, m_bob_atmosphere));
     
 }
 
 void PrepareAndMeasure::initChannels(Device &satellite1, Device &satellite2) {
-    
-    Channel* alice_satellite1 = new Channel(m_alice, satellite1, m_alice_atmosphere);
-    Channel* satellite1_satellite2 = new Channel(satellite1, satellite2);
-    Channel* satellite2_bob = new Channel(satellite2, m_bob,  m_bob_atmosphere);
 
-    addChannel(alice_satellite1);
-    addChannel(satellite1_satellite2);
-    addChannel(satellite2_bob);
+    addChannel(new Channel(m_alice, satellite1, m_alice_atmosphere));
+    addChannel(new Channel(satellite1, satellite2));
+    addChannel(new Channel(satellite2, m_bob,  m_bob_atmosphere));
    
 }
 void PrepareAndMeasure::initChannels(Device &satellite1, Device &satellite2, Device &satellite3) {
-    
-    Channel* alice_satellite1 = new Channel(m_alice, satellite1, m_alice_atmosphere);
-    Channel* satellite1_satellite2 = new Channel(satellite1, satellite2);
-    Channel* satellite2_satellite3 = new Channel(satellite2, satellite3);
-    Channel* satellite3_bob = new Channel(satellite3, m_bob, m_bob_atmosphere);
 
-    addChannel(alice_satellite1);
-    addChannel(satellite1_satellite2);
-    addChannel(satellite2_satellite3);
-    addChannel(satellite3_bob);
+    addChannel(new Channel(m_alice, satellite1, m_alice_atmosphere));
+    addChannel(new Channel(satellite1, satellite2));
+    addChannel(new Channel(satellite2, satellite3));
+    addChannel(new Channel(satellite3, m_bob, m_bob_atmosphere));
 }

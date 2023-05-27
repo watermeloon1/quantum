@@ -26,7 +26,7 @@ double Network::getRandom(const double deviation) const {
     return dist(gen);
 }
 
-void Network::addChannel(Channel *channel) {
+void Network::addChannel(Channel*  channel) {
     m_channels.push_back(channel);
 }
 
@@ -246,4 +246,3 @@ void Network::simulateTripleSatellite(const double precision, const double devia
     }
 }
 
-// TODO: decrease the number of simulation functions to one with template metaprogramming

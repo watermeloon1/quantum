@@ -19,7 +19,7 @@ public:
     double getOpticalDistance() const;
     double getRandom(const double deviation) const;
 
-    void addChannel(Channel *channel);
+    void addChannel(Channel* channel);
     void deleteChannel(Channel *channel);
 
     void deleteChannels();

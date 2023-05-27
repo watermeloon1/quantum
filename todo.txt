@@ -1,2 +1,1 @@
-// TODO: mitigate deviation to a more logical place
-// TODO: make the simulations deviate in the 3 axises (longitude too)
+// TODO: decrease the number of simulation functions to one with template metaprogramming
